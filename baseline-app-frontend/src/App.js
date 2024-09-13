@@ -5,15 +5,22 @@ import FoodResults from './FoodResults';
 
 
 const App = () => {
+  console.log("process.env: ", process.env)
   const [results, setResults] = useState([]);
 
   const handleSearch = async (ingredients) => {
-    // try {
-    //   const response = await axios.post(`http://localhost:${process.env.REACT_APP_PORT}/api/ingredients`, { ingredients });
-    //   setResults(response.data);
-    // } catch (error) {
-    //   console.error('Error fetching data', error);
-    // }
+    try {
+      const API_PORT = process.env.REACT_APP_API_PORT;
+
+      const URL = `http://localhost:${API_PORT}/api/food`;
+      console.log('Sending request to:', URL);
+
+      const response = await axios.post(URL, { ingredients });
+      
+      setResults(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
   return (

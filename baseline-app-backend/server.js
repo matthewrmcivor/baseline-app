@@ -3,18 +3,19 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 const dotenv = require('dotenv');
+const cors = require('cors');
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+app.use(cors());
+dotenv.config({ path: path.resolve(__dirname, '../baseline-app-backend/.env') });
 
 
-const PORT = process.env.PORT || 3000;
-
-
+const PORT = process.env.SERVER_PORT;
 const SPOONACULAR_API_KEY = process.env.SPOONACULAR_API_KEY;
 
 app.use(express.json());
 
 console.log("SPOONACULAR_API_KEY=",SPOONACULAR_API_KEY)
+console.log("Server Port: ", PORT)
 
 
 // Endpoint to take food ingredients input from the front-end
@@ -26,7 +27,8 @@ app.post('/api/food', async (req, res) => {
     const response = await axios.get('https://api.spoonacular.com/recipes/findByIngredients', {
       params: {
         ingredients: ingredients.join(','),
-        number: 10, // Get 10 results and we will pick the least calorie-dense ones
+        number: 3, // Get 3 results and we will pick the least calorie-dense ones
+        // Sppondacular API free tier only allowed 150 requests per day. So limiting to 3 for now then once functional, increase to 10.
         apiKey: SPOONACULAR_API_KEY
       }
     });
