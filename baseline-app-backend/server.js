@@ -15,7 +15,7 @@ const APP_ID=process.env.EDAMAM_APP_ID;
 
 app.use(express.json());
 
-console.log("API_KEY=",API_KEY)
+// console.log("API_KEY=",API_KEY)
 // console.log("Server Port: ", PORT)
 
 
