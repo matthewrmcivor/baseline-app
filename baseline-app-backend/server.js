@@ -44,11 +44,23 @@ app.post('/api/food', async (req, res) => {
 
     // console.log("edamamResponse: ", edamamResponse)
     
-    const foodData = foodResults.map(food => {
+    // const foodData = foodResults.map(food => {
+    //   return {
+    //     name: food.recipe.label,
+    //   };
+    // });
+  
+    // Extract relevant data and map it to a structured format
+    const foodData = foodResults.map((food) => {
       return {
         name: food.recipe.label,
+        calories: food.recipe.calories || 0,  // Add calories to map for sorting
+        carbs: food.recipe.totalNutrients?.CHOCDF?.quantity || 0,
+        fat: food.recipe.totalNutrients?.FAT?.quantity || 0,
+        protein: food.recipe.totalNutrients?.PROCNT?.quantity || 0
       };
     });
+  
 
 
     // Sort the food items by calories and return the 3 least calorie-dense foods

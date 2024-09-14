@@ -5,7 +5,6 @@ const FoodResults = ({ foods }) => {
         <div key={index}>
           <h3>{food.name}</h3>
           <p>Calories: {food.calories}</p>
-          <p>Other Nutrients: {JSON.stringify(food.nutrients)}</p>
         </div>
       ))}
     </div>
