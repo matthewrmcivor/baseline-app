@@ -10,59 +10,61 @@ dotenv.config({ path: path.resolve(__dirname, '../baseline-app-backend/.env') })
 
 
 const PORT = process.env.SERVER_PORT;
-const SPOONACULAR_API_KEY = process.env.SPOONACULAR_API_KEY;
+const API_KEY = process.env.API_KEY;
+const APP_ID=process.env.EDAMAM_APP_ID;
 
 app.use(express.json());
 
-console.log("SPOONACULAR_API_KEY=",SPOONACULAR_API_KEY)
-console.log("Server Port: ", PORT)
+console.log("API_KEY=",API_KEY)
+// console.log("Server Port: ", PORT)
 
 
 // Endpoint to take food ingredients input from the front-end
 app.post('/api/food', async (req, res) => {
   const { ingredients } = req.body;  // Expecting an array of ingredients
+  
+  console.log("req.body: ", req.body)
 
   try {
-    // Send request to Spoonacular API
-    const response = await axios.get('https://api.spoonacular.com/recipes/findByIngredients', {
-      params: {
-        ingredients: ingredients.join(','),
-        number: 3, // Get 3 results and we will pick the least calorie-dense ones
-        // Sppondacular API free tier only allowed 150 requests per day. So limiting to 3 for now then once functional, increase to 10.
-        apiKey: SPOONACULAR_API_KEY
-      }
+    const params = {
+      type: 'public',
+      q: ingredients.join(','),  
+      app_id: APP_ID,
+      app_key: API_KEY,
+    }
+    
+    // Send request to Edamam API
+    //e.g.   'https://api.edamam.com/api/recipes/v2?type=public&q=chicken&app_id=92c65226&app_key=705b5b88ac3f8d2d83c3beeac4650ec2' \
+
+    const edamamResponse = await axios.get('https://api.edamam.com/api/recipes/v2', { params });
+    console.log("params: ", params);
+    // console.log("res: ", res)
+
+    const foodResults = edamamResponse.data.hits;
+
+    // console.log("edamamResponse: ", edamamResponse)
+    
+    const foodData = foodResults.map(food => {
+      return {
+        name: food.recipe.label,
+      };
     });
 
-    const foodResults = response.data;
-
-    // Extract nutritional data for each food item
-    const foodData = await Promise.all(
-      foodResults.map(async (food) => {
-        const nutritionResponse = await axios.get(`https://api.spoonacular.com/recipes/${food.id}/nutritionWidget.json`, {
-          params: {
-            apiKey: SPOONACULAR_API_KEY
-          }
-        });
-        return {
-          name: food.title,
-          calories: nutritionResponse.data.calories,
-          carbs: nutritionResponse.data.carbs,
-          fat: nutritionResponse.data.fat,
-          protein: nutritionResponse.data.protein
-        };
-      })
-    );
 
     // Sort the food items by calories and return the 3 least calorie-dense foods
     const sortedByCalories = foodData.sort((a, b) => a.calories - b.calories).slice(0, 3);
 
+    console.log("sortedByCalories: ", sortedByCalories)
+    
     // Send the data back to the front-end
     res.json(sortedByCalories);
   } catch (error) {
-    console.error('Error fetching data from Spoonacular:', error.message);
-    res.status(500).send('Error fetching data from Spoonacular');
+    console.error('Error fetching data from Edamam:', error.message);
+    console.error('Edamam error response:', error.response?.data);  // Log the actual response from Edamam if available
+        res.status(500).send('Error fetching data from Edamam');
   }
 });
+
 
 
 // Start the server
