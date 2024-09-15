@@ -57,7 +57,9 @@ app.post('/api/food', async (req, res) => {
         calories: food.recipe.calories || 0,  // Add calories to map for sorting
         carbs: food.recipe.totalNutrients?.CHOCDF?.quantity || 0,
         fat: food.recipe.totalNutrients?.FAT?.quantity || 0,
-        protein: food.recipe.totalNutrients?.PROCNT?.quantity || 0
+        protein: food.recipe.totalNutrients?.PROCNT?.quantity || 0,
+        image: food.recipe.image, 
+
       };
     });
   
